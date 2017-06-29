@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Internal;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Caching.Memory;
@@ -32,11 +33,12 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         /// <summary>
         /// Creates a new <see cref="CacheTagHelper"/>.
         /// </summary>
-        /// <param name="memoryCache">The <see cref="IMemoryCache"/>.</param>
+        /// <param name="factory">The factory containing the private <see cref="IMemoryCache"/> instance
+        /// used by the <see cref="CacheTagHelper"/>.</param>
         /// <param name="htmlEncoder">The <see cref="HtmlEncoder"/> to use.</param>
-        public CacheTagHelper(IMemoryCache memoryCache, HtmlEncoder htmlEncoder) : base(htmlEncoder)
+        public CacheTagHelper(CacheTagHelperMemoryCacheFactory factory, HtmlEncoder htmlEncoder) : base(htmlEncoder)
         {
-            MemoryCache = memoryCache;
+            MemoryCache = factory.Cache;
         }
 
         /// <summary>
@@ -147,25 +149,35 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         // Internal for unit testing
         internal MemoryCacheEntryOptions GetMemoryCacheEntryOptions()
         {
+            var hasEvictionCriteria = false;
             var options = new MemoryCacheEntryOptions();
             if (ExpiresOn != null)
             {
+                hasEvictionCriteria = true;
                 options.SetAbsoluteExpiration(ExpiresOn.Value);
             }
 
             if (ExpiresAfter != null)
             {
+                hasEvictionCriteria = true;
                 options.SetAbsoluteExpiration(ExpiresAfter.Value);
             }
 
             if (ExpiresSliding != null)
             {
+                hasEvictionCriteria = true;
                 options.SetSlidingExpiration(ExpiresSliding.Value);
             }
 
             if (Priority != null)
             {
+                hasEvictionCriteria = true;
                 options.SetPriority(Priority.Value);
+            }
+
+            if (!hasEvictionCriteria)
+            {
+                options.SetSlidingExpiration(DefaultExpiration);
             }
 
             return options;

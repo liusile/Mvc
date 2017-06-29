@@ -3,17 +3,20 @@
 
 using System;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Internal;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
-{   
+{
     /// <summary>
     /// Extension methods for configuring Razor cache tag helpers.
     /// </summary>
     public static class TagHelperServicesExtensions
     {
+        private const int DefaultEntryCountLimit = 1000;
+
         /// <summary>
         ///  Adds MVC cache tag helper services to the application.
         /// </summary>
@@ -32,7 +35,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Required default services for cache tag helpers
             builder.Services.TryAddSingleton<IDistributedCache, MemoryDistributedCache>();
-            builder.Services.TryAddSingleton<IMemoryCache, MemoryCache>();
+            builder.Services.TryAddSingleton<CacheTagHelperMemoryCacheFactory>();
+            //builder.Services.Configure<MemoryCacheOptions>(
+            //    CacheTagHelperMemoryCacheFactory.MemoryCacheOptionsName,
+            //    o => o.EntryCountLimit = DefaultEntryCountLimit);
 
             return builder;
         }

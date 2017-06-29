@@ -99,6 +99,14 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         public TimeSpan? ExpiresAfter { get; set; }
 
         /// <summary>
+        /// Gets or sets the default duration, from the time the cache entry was added, when it should be evicted.
+        /// This default duration will only be used if no other expiration criteria gets set for the tag helper.
+        /// The default expiration time is a sliding expiration of 30 seconds.
+        /// </summary>
+        [HtmlAttributeNotBound]
+        public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromSeconds(30);
+
+        /// <summary>
         /// Gets or sets the duration from last access that the cache entry should be evicted.
         /// </summary>
         [HtmlAttributeName(ExpiresSlidingAttributeName)]
@@ -109,6 +117,5 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         /// </summary>
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
-
     }
 }
