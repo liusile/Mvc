@@ -30,7 +30,7 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             var expectedDataInCookie = Base64UrlTextEncoder.Encode(expectedDataToProtect);
             var tempDataProvider = GetProvider(dataProtector: null, options: new CookieTempDataProviderOptions()
             {
-                CookieName = exepectedCookieName
+                Cookie = { Name = exepectedCookieName }
             });
 
             var responseCookies = new MockResponseCookieCollection();
@@ -230,7 +230,14 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             var dataProtector = new PassThroughDataProtector();
             var tempDataProvider = GetProvider(
                 dataProtector,
-                new CookieTempDataProviderOptions() { Path = optionsPath, Domain = optionsDomain });
+                new CookieTempDataProviderOptions
+                {
+                    Cookie =
+                    {
+                        Path = optionsPath,
+                        Domain = optionsDomain
+                    }
+                });
             var responseCookies = new MockResponseCookieCollection();
             var httpContext = new Mock<HttpContext>();
             httpContext
